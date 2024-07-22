@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+    <display-name>ui-webproxy  1.5.3.3 </display-name>
+  
+  <context-param>
+    <description>Configure this parameter to allow the ACS GUI (acs.war) to properly communicate with the ACS service over REST.  This is required only if you have installed an ACS GUI.</description>
+    <param-name>ACS_REST_URL</param-name>
+    <param-value>http://localhost:8090</param-value>
+  </context-param>
+  
+  <context-param>
+    <description>Configure this parameter to allow the RETINA GUI (retina.war) to properly communicate with the RETINA service over REST.  This is required only if you have installed a RETINA GUI.</description>    
+    <param-name>RETINA_REST_URL</param-name>
+    <param-value>http://localhost:8964</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Configure this parameter to allow the Incognito Ecosystem Scripting (IES) GUI (ies.war) to properly communicate with the IES service over REST.  This is required only if you have installed an IES or ACS GUI.</description>
+    <param-name>IES_REST_URL</param-name>
+    <param-value>http://localhost:8965</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Configure this parameter to allow the BAR GUI (bar.war) to properly communicate with the BAR service over REST.  This is required only if you have installed a BAR GUI.</description>
+    <param-name>BAR_REST_URL</param-name>
+    <param-value>http://localhost:9966</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Configure this parameter to allow the Scope Deployment Manager (SDM) GUI (sdm.war) to properly communicate with the SDM service over REST.  This is required only if you have installed a SDM GUI.</description>
+    <param-name>SDM_REST_URL</param-name>
+    <param-value>http://localhost:8962</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Configure this parameter to allow the Address Commander (AC) GUI (ac.war) to properly communicate with the AC service over REST.  This is required only if you have installed an AC GUI.</description>
+    <param-name>AC_REST_URL</param-name>
+    <param-value>http://localhost:8993</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Configure this parameter to allow the ACPORTAL GUI (acportal.war) to properly communicate with the UMS service over REST.  This is required only if you have installed an ACPORTAL GUI.</description>
+    <param-name>UMS_REST_URL</param-name>
+    <param-value>http://localhost:8995</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Smart CSR REST API location</description>
+    <param-name>SMARTCSR_REST_URL</param-name>
+    <param-value>http://localhost:6919</param-value>
+  </context-param>
+  
+  <context-param>
+    <description>Added for packaging, please ignore</description>
+    <param-name>appversion</param-name>
+    <param-value>@BUILD@</param-value>
+  </context-param>  
+ 
+ 
+   <!--
+  <context-param>
+    <description>Enable this value true to enable detailed logging for troubleshooting</description>
+    <param-name>DETAILED_LOGGING</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  -->
+  
+</web-app>

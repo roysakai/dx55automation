@@ -1,0 +1,8 @@
+- name: Applying installation and dependency 
+  hosts: localhost
+  connection: local 
+  become: yes 
+   
+  roles:
+   - acs
+       

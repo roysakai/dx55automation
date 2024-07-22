@@ -1,0 +1,68 @@
+- name: Set some fact
+  set_fact:
+    short_version: "{{ elastic_version | regex_replace('\\..*$', '') }}"
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  ignore_errors: true
+
+- name: Import a key from a url
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  ignore_errors: true  
+
+- name: Install Elastic Repo. 7x
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey: "{{ item.gpgkey }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ elastic_repo_yum }}"
+  when:
+    - short_version is version_compare('7', '<=')
+
+- name: Install Elastic Repo. 8x
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: https://artifacts.elastic.co/packages/8.x/yum
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey: "{{ item.gpgkey }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ elastic_repo_yum }}"
+  when:
+    - short_version is version_compare('8', '>=')
+
+- name: Install packages
+  yum:
+    name:
+        - java-11-openjdk-devel
+        - java-11-openjdk
+        - vim
+        - jq
+    state: latest
+
+- name: Install elasticsearch
+  yum:
+    name:
+        - elasticsearch-{{ elastic_version }}
+    state: present 
+
+- name: Set Elasticsearch Configuration File
+  template:
+     src: elasticsearch.yml.j2
+     dest: /etc/elasticsearch/elasticsearch.yml
+
+- name: Start Elasticsearch service
+  systemd:
+    name: elasticsearch
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- include_tasks: kibana.yaml
+  when: kibana == "true"

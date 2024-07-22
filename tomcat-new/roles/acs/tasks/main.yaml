@@ -1,0 +1,72 @@
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  ignore_errors: true
+
+- name: Execute setenforce
+  ansible.builtin.shell: setenforce 0
+
+- name: Install repo incognito
+  blockinfile:
+    path: /etc/yum.repos.d/incognitoPublic.repo
+    create: yes
+    block: |
+      {% for repo in incognito_repo_yum %}
+      [{{ repo.name }}]
+      name={{ repo.description }}
+      baseurl={{ repo.baseurl }}
+      enabled={{ repo.enabled }}
+      gpgcheck={{ repo.gpgcheck }}
+      state={{ repo.state | default('present') }}
+      {% endfor %}
+
+- name: Add repo mysql
+  ansible.builtin.dnf:
+    name: http://repo.mysql.com/yum/mysql-8.0-community/el/8/x86_64/mysql80-community-release-el8-4.noarch.rpm
+    disable_gpg_check: true
+    state: present
+
+- name: Install dependencies packages
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - wget
+    - vim 
+    - curl
+    - unzip
+    - java-1.8.0-openjdk
+    - epel-release
+    - openssl
+    - python3
+    - python3-pip
+    - mysql-connector-java-8.0.22
+    - unixODBC 
+    - unixODBC-devel
+    - yum-utils
+    - net-tools
+    
+- name: Install odbc driver mysql-connector-odbc-8.4.0-1.el8.x86_64.rpm
+  command: rpm -ivh https://downloads.mysql.com/archives/get/p/10/file/mysql-connector-odbc-8.4.0-1.el8.x86_64.rpm
+  ignore_errors: true
+
+- name: Install pip packages
+  pip:
+    name:
+        - pymysql
+        
+- name: "Install and configuration acs"
+  include_tasks: acs.yaml
+  when: acs == "true"
+
+- name: "Install and configuration ums"
+  include_tasks: ums.yaml
+  when: acs == "true"
+
+- name: "Install and configuration ies"
+  include_tasks: ies.yaml
+  when: acs == "true"
+
+- name: "Install and configuration cwmp"
+  include_tasks: cwmp.yaml
+  when: cwmp == "true"

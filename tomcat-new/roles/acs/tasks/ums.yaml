@@ -1,0 +1,67 @@
+- name: Copy incognito template 
+  template:
+    src: incognitoUMS6.repo.j2
+    dest: /etc/yum.repos.d/incognitoUMS6.repo
+  when: version_dx <= '5.3'   
+
+- name: Install NRCSVC packages
+  dnf:
+    name: NRCSVC
+    state: present
+
+- name: Register the UMS service
+  shell: /usr/local/sbin/umsd -r {{ license_key_ums }}
+  register: result
+  changed_when: "'I am' not in result.stdout"
+
+- name: Copy odbc.ini template 
+  template:
+    src: odbc.ini.j2
+    dest: /etc/odbc.ini
+
+- name: Copy config template 
+  template:
+    src: config.txt.j2
+    dest: /usr/local/lib/ums/data/config.txt
+
+- name: Make sure umsd service is running
+  systemd:
+    name: umsd
+    state: restarted
+    daemon_reload: yes
+    enabled: yes  
+
+- name: Install tomcat and incognito-ui-umswmc packages
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - tomcat
+    - incognito-ui-umswmc
+
+- name: Create an empty file for config.properties
+  copy:
+    content: ""
+    dest: /opt/incognito/uiumswmc/ums/WEB-INF/classes/config.properties
+    force: no
+
+- name: Configure config.properties params
+  lineinfile:
+    path: /opt/incognito/uiumswmc/ums/WEB-INF/classes/config.properties
+    line: "{{ item }}"
+  with_items:
+    - 'primaryHostname={{ ansible_hostname }}'
+    - 'secondaryHostname='
+    - 'portnumber=9995'
+    
+- name: Copy web.xml template 
+  template:
+    src: web-ums.xml.j2
+    dest: /opt/incognito/uiumswmc/ums/WEB-INF/web.xml
+
+- name: Make sure tomcat service is running
+  systemd:
+    name: tomcat
+    state: restarted
+    daemon_reload: yes
+    enabled: yes  

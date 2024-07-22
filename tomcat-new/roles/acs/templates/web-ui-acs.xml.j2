@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+     xmlns="http://java.sun.com/xml/ns/javaee" 
+     xmlns:web="http://java.sun.com/xml/ns/javaee" 
+     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+    <display-name>ACS  5.3.2.26 </display-name>
+  <!-- 
+     This welcome-file-list is to be removed entirely if ForgeRock is used.
+     For ForgeRock and Cogeco the welcome file is index.html
+     For UMS the welcome file is index.xhtml
+  -->
+  <welcome-file-list>
+    <welcome-file>index.xhtml</welcome-file>
+  </welcome-file-list>
+  
+  <context-param>
+    <param-name>guicustomconfig</param-name>
+    <param-value>
+      {
+        "googleMapsApiKey": "AIzaSyAyxBAW_zUsAYStekjPLFj0qFtZFzQz6rM",
+        "oldDeviceStatusBar": false,
+        "customerLogo": "./resources/img/logos/{filename}",
+        "integratedSAC": "do not include this field if SAC is disabled"  
+      }
+    </param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>kibanaUrl</param-name>
+    <param-value>http://kibana-url:5601/acs/kibana</param-value>
+  </context-param>
+  
+  <context-param>
+    <description>List of user accounts linked to entities in Kibana. Each user must have account in Kibana</description>
+    <param-name>entityUsers</param-name>
+    <param-value>
+      {
+      "entity1-uuid"  : "Base64(username:password)",
+      "entity2-uuid"  : "Base64(username:password)",
+      "00000000-0000-0000-0000-000000000000"  : "Base64(username:password)"
+      }
+    </param-value>
+  </context-param>
+  
+  <context-param>
+    <description>
+        The default welcome file set in this web.xml. For UMS authentication this is index.xhtml
+        If absent, the default value is index.xhtml
+        For ForgeRock and Cogeco the welcome file is index.html
+      </description>
+    <param-name>welcomefile</param-name>
+    <param-value>index.xhtml</param-value> 
+  </context-param>
+  
+  <context-param>
+    <description>
+        ACS Launch-In-Context endpoint. Leave it empty if Licacs integration is not used
+        Param-value Example:
+        http://localhost:6962
+    </description>
+    <param-name>acslicURI</param-name>
+    <param-value>
+    </param-value>
+  </context-param>
+  <context-param>
+    <description>
+       An administrator user of UMS with full permissions when oauth2 is used. Ignored otherwise.
+    </description>
+    <param-name>umsUserName</param-name>
+    <param-value></param-value>
+  </context-param>
+  <context-param>
+    <description>
+       An administrator user of UMS with full permissions when oauth2 is used. Ignored otherwise. 
+    </description>
+    <param-name>umsUserPassword</param-name>
+    <param-value></param-value>
+  </context-param>
+  
+  <context-param>
+    <description>
+        OAuth2 provider to be used: Possible values: oauth2
+        If left empty UMS will be used
+      </description>
+    <param-name>oauth2provider</param-name>
+    <param-value></param-value> 
+  </context-param>
+  <context-param>
+    <description>
+        Users created with OAuth2 login will be removed from UMS after this period. 
+        The value represents days. Default value is 30.
+        Set the value to 0 to not activate purging - purge process will not be activated. 
+    </description>
+    <param-name>userPurgePeriod</param-name>
+    <param-value>30</param-value> 
+  </context-param>
+ 
+  <context-param>
+      <param-name>AUTHORIZATION_SCHEME</param-name>
+      <param-value>IncognitoUms</param-value>
+  </context-param>
+  <context-param>
+    <description>
+        Display drop down menu for app translation.
+    </description>
+    <param-name>lockedlanguage</param-name>
+    <param-value></param-value>
+  </context-param>
+  <context-param>
+    <description>
+        The IP or hostname of the User Management Service.
+        Please see your system administrator to configure this to the correct value.
+      </description>
+    <param-name>umsloc</param-name>
+    <param-value>localhost</param-value>
+  </context-param>
+  <context-param>
+    <description>
+        The CORBA port of the User Management Service.  The default value is 9995.
+      </description>
+    <param-name>umscorba</param-name>
+    <param-value>9995</param-value>
+  </context-param>
+  <context-param>
+    <description>
+        The IP of the Rabbit MQ service.  
+        Please see your system administrator to configure this to the correct value.
+      </description>
+    <param-name>rabbitmqloc</param-name>
+    <param-value>{{ MESSAGE_BROKER_ADDRESS }}</param-value>
+  </context-param>
+  <context-param>
+    <description>
+        The port of the Rabbit MQ service.  The default value is 5672.
+      </description>
+    <param-name>rabbitmqport</param-name>
+    {% if rabbit_instance == "true" %}
+    <param-value>5672</param-value>
+    {% else %}
+    <param-value>5671</param-value>
+    {% endif %}
+  </context-param>
+  <context-param>
+    <description>The username of the Rabbit MQ service. The default value is guest.</description>
+    <param-name>{{ MESSAGE_BROKER_USERNAME }}</param-name>
+    <param-value>guest</param-value>
+  </context-param>
+  <context-param>
+    <description>The password to Rabbit MQ service.  The default value is guest.</description>
+    <param-name>{{ MESSAGE_BROKER_PASSWORD }}</param-name>
+    <param-value>guest</param-value>
+  </context-param>
+  <context-param>
+    <description>The war file build number.  Do not change.</description>
+    <param-name>appversion</param-name>
+    <param-value>@BUILD@</param-value>
+  </context-param>
+  <context-param>
+    <description>Incognito tag library.  Do not change.</description>
+    <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+    <param-value>/WEB-INF/incognito-taglib/incognito-taglib.xml</param-value>
+  </context-param>
+  <context-param>
+    <description>
+        Specify which service(s) the GUI must load security profiles for.
+        The parameter value is a comma-separated list of service types. Supported type is &quot;acs&quot;.
+        If the UMS service has more than one registered type of service instance registered, then specify 
+        the service instance in the form &quot;service type|service name&quot; where &quot;Service Name&quot; is the 
+        name of the service instance registered in UMS.
+         
+        Please see your system administrator to get the correct value of ACS to replace
+        &quot;acshost.example.com&quot; in the param-value.
+      </description>
+    <param-name>loadSecurityProfiles</param-name>
+    <param-value>acs|ACS acshost.example.com, IES | JSE ies.example.com, retina | KPI retina.example.com</param-value>
+  </context-param>
+  <servlet>
+    <description>
+        Open source websocket configuration.  Overwriting the configured values is not recommended.  
+        Refer to https://github.com/Atmosphere/atmosphere/wiki if you wish to configure it.
+      </description>
+    <servlet-name>MeteorServlet</servlet-name>
+    <servlet-class>org.atmosphere.cpr.MeteorServlet</servlet-class>
+    <init-param>
+      <description>The default value is true.</description>
+      <param-name>org.atmosphere.cpr.sessionSupport</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <description>The default value is true.</description>
+      <param-name>org.atmosphere.cpr.AtmosphereResource.uniqueUUID</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <description>The default value is org.atmosphere.cache.UUIDBroadcasterCache.</description>
+      <param-name>org.atmosphere.cpr.broadcasterCacheClass</param-name>
+      <param-value>org.atmosphere.cache.UUIDBroadcasterCache</param-value>
+    </init-param>
+    <init-param>
+      <description>The default value is IDLE.</description>
+      <param-name>org.atmosphere.cpr.broadcasterLifeCyclePolicy</param-name>
+      <param-value>IDLE</param-value>
+    </init-param>
+    <init-param>
+      <description>The default value is 3600000.</description>
+      <param-name>org.atmosphere.cpr.maxBroadcasterLifeCyclePolicyIdleTime</param-name>
+      <param-value>3600000</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MeteorServlet</servlet-name>
+    <url-pattern>/websocket/*</url-pattern>
+    <url-pattern>/debug/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description>
+        Open source RESTful web service library.  Do not overwrite.  
+      </description>
+    <servlet-name>jersey-servlet</servlet-name>
+    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>com.incognito.uix.server</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jersey-servlet</servlet-name>
+    <url-pattern>/security/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.xhtml</url-pattern>
+  </servlet-mapping>
+  
+  <!--  OAuth2
+  <servlet>
+    <description></description>
+    <servlet-name>Oauth2AuthorizationCodeCallbackServlet</servlet-name>
+    <servlet-class>com.incognito.auth.Oauth2AuthorizationCodeCallbackServlet</servlet-class>
+  </servlet>
+   <servlet-mapping>
+    <servlet-name>Oauth2AuthorizationCodeCallbackServlet</servlet-name>
+    <url-pattern>/oauth2callback/*</url-pattern>
+  </servlet-mapping>  
+  <filter>
+    <filter-name>authorization-server</filter-name>
+    <filter-class>com.incognito.phoenix.auth.AuthorizationServerFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>authorization-server</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  -->
+  
+  <listener>
+    <listener-class>com.incognito.phoenix.listener.PhoenixServletContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>com.incognito.nashorn.listener.NashornServletContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>com.incognito.iridium.listener.IridiumServletContextListener</listener-class>
+  </listener>
+  <listener>
+   <listener-class>com.incognito.auth.IncHttpSessionListener</listener-class>
+  </listener>
+  
+  <!--  The following would need to be used when using ForgeRock authorization. This would require Java Agent to be installed in Tomcat container -->
+  <!-- 
+  <filter>
+        <filter-name>Agent</filter-name>
+        <filter-class>com.sun.identity.agents.filter.AmAgentFilter</filter-class>
+  </filter>
+  <filter-mapping>
+        <filter-name>Agent</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+  <context-param>
+    <description>
+        The IP or hostname of the OpenAM. Example: http://host:port/openam
+        This is used only if ForgeRock in used. Ignored otherwise
+        Please see your system administrator to configure this to the correct value.
+      </description>
+    <param-name>openamloc</param-name>
+    <param-value>http://openam.example.com:8080/openam</param-value> 
+  </context-param>
+  <context-param>
+    <description>
+        The cookie name used for SSOToken cookie. Service will look for any of this names to 
+        verify if this is an openam session. 
+        Please see your system administrator to configure this to the correct value.
+        incSSOToken - Incognito cookie name. this will need to match the cookie name in Java Agent
+        iPlanetDirectoryPro - default OpenAM value
+        This is used only if ForgeRock in used. Ignored otherwise
+      </description>
+    <param-name>ssoTokenCookieName</param-name>
+    <param-value>incSSOToken</param-value> 
+  </context-param>
+  -->
+  <!-- end ForgeRock settings -->
+  <error-page>
+    <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+    <location>/index.xhtml</location>
+  </error-page>
+  <session-config>
+    <tracking-mode>COOKIE</tracking-mode>
+    <session-timeout>-1</session-timeout>
+  </session-config>
+        <security-constraint>
+                <web-resource-collection>
+                        <web-resource-name>precluded methods</web-resource-name>
+                                <url-pattern>/resources/js/libs/bootstrap/bootstrap-daterangepicker/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/moment-timezone/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/moment/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/underscore/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/vis/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/text/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/tagit/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/requirejs/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/requirejs-plugins/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/packery/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/matches-selector/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/masonry/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery.cookie/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-ui/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-selectboxit/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-file-download/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-bridget/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/isotope/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/isotope-masonry-horizontal/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/iCheck/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/handlebars/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/fullcalendar/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/backbone/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap/bootstrap-daterangepicker/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap-daterangepicker/.bower.json</url-pattern>
+                                <url-pattern>/resources/js/libs/moment-timezone/composer.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery/composer.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-ui/composer.json</url-pattern>
+                                <url-pattern>/resources/js/libs/cytoscape/composer.json</url-pattern>
+                                <url-pattern>/resources/js/libs/react/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/react-dom/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/react-bootstrap/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap/bootstrap-daterangepicker/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap-daterangepicker/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/vis/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/text/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-ui/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-selectboxit/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-file-download/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/isotope-masonry-horizontal/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/backbone/.package.json</url-pattern>
+                                <url-pattern>/resources/js/libs/cytoscape/.travis.yml</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery.cookie/.travis.yml</url-pattern>
+                                <url-pattern>/resources/js/libs/jquery-selectboxit/.travis.yml</url-pattern>
+                                <url-pattern>/resources/js/libs/bootstrap-datetimepicker/.travis.yml</url-pattern>
+                                <url-pattern>/resources/js/libs/backbone/.travis.yml</url-pattern>
+                        <url-pattern>/resources/js/libs/moment-timezone/.bower.json</url-pattern>   
+                        </web-resource-collection>
+                <auth-constraint/>
+        </security-constraint>
+</web-app>

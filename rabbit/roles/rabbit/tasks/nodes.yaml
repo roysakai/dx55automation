@@ -1,0 +1,22 @@
+
+- name: Copy the join command to server location
+  copy: src=erlang.cookie dest=/var/lib/rabbitmq/.erlang.cookie mode=0400
+  
+- name: Make sure rabbitmq-server service is running
+  systemd:
+    name: rabbitmq-server
+    state: restarted
+
+- name: Execute multiple commands using shell module
+  ansible.builtin.shell: |
+    rabbitmqctl stop_app
+
+- name: Execute multiple commands using shell module
+  ansible.builtin.shell: |   
+    rabbitmqctl reset
+
+- name: Execute multiple commands using shell module
+  ansible.builtin.shell: |
+    rabbitmq-server -detached
+    rabbitmqctl join_cluster rabbit@{{ node1 }}
+    rabbitmqctl start_app

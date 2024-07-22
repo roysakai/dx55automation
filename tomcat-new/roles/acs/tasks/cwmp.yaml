@@ -1,0 +1,66 @@
+- name: Copy incognitoCWMP5 template 
+  template:
+    src: incognitoCWMP5.repo.j2
+    dest: /etc/yum.repos.d/incognitoCWMP5.repo
+  when: version_dx <= '5.3'   
+  
+- name: Install cwmp package
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - cwmp
+
+- name: Copy file with owner and permissions
+  copy:
+    src: /usr/local/bin/acscli
+    dest: /usr/bin/acscli
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: yes
+  ignore_errors: true  
+
+### ERROR "Error: Could not find or load main class com.incognito.acs.cli.AcsCli
+- name: Register the cwmp service
+  shell: acscli -c TR069_LICENSE_KEY={{ license_key_cwmp }}
+  #register: result
+  #changed_when: "'successfully registered' not in result.stdout"
+  ignore_errors: true
+  
+# - name: Display init
+#   debug:
+#     var: result
+
+- name: Copy config-cwmp template 
+  template:
+    src: config-cwmp.txt.j2
+    dest: /usr/local/lib/cwmp/data/config.txt
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src: /usr/share/java/mysql-connector-java.jar
+    dest: /usr/local/lib/cwmp/ext/mysql-connector-java.jar
+    owner: root
+    group: root
+    state: link
+
+- name: Create an empty file for cwmp
+  copy:
+    content: ""
+    dest: /etc/default/cwmp
+    force: no
+
+- name: Configure cwmp params
+  lineinfile:
+    path: /etc/default/cwmp
+    line: "{{ item }}"
+  with_items:
+    - 'JAVA_VM_OPT="-Xmx2048m"'
+
+- name: Make sure cwmpsvc service is running
+  systemd:
+    name: cwmp
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

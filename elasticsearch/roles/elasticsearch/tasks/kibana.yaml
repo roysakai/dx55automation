@@ -1,0 +1,17 @@
+- name: Install kibana
+  yum:
+    name:
+        - kibana-{{ elastic_version }}
+    state: present 
+
+- name: Set kibana Configuration File
+  template:
+     src: kibana.yml.j2
+     dest: /etc/kibana/kibana.yml
+
+- name: Start kibana service
+  systemd:
+    name: kibana
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

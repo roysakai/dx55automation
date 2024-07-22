@@ -1,0 +1,155 @@
+- name: Create UMS database
+  mysql_db:
+    login_host: "{{ host_db }}"
+    login_user: "{{ username }}"
+    login_password: "{{ password }}"
+    name: "ums"
+    state: present
+    encoding: latin1
+    collation: latin1_general_ci
+
+- name: Create ACS database
+  mysql_db:
+    login_host: "{{ host_db }}"
+    login_user: "{{ username }}"
+    login_password: "{{ password }}"
+    name: "acs"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+- name: Create IES database
+  mysql_db:
+    login_host: "{{ host_db }}"
+    login_user: "{{ username }}"
+    login_password: "{{ password }}"
+    name: "ies"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+- name: Create RETINA database
+  mysql_db:
+    login_host: "{{ host_db }}"
+    login_user: "{{ username }}"
+    login_password: "{{ password }}"
+    name: "retina"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+    
+- name: Create a new MySQL database user
+  mysql_user:
+    login_host: "{{ host_db }}"
+    login_user: "{{ username }}"
+    login_password: "{{ password }}"
+    name: "{{ username_db }}"
+    host: "%"
+    password: "{{ password }}"
+    priv: '*.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,RELOAD,PROCESS,REFERENCES,INDEX,ALTER,SHOW DATABASES,CREATE TEMPORARY TABLES,LOCK TABLES,EXECUTE,REPLICATION SLAVE,REPLICATION CLIENT,CREATE VIEW,SHOW VIEW,CREATE ROUTINE,ALTER ROUTINE,CREATE USER,EVENT,TRIGGER,GRANT'
+    state: present
+
+## Install ACS
+- name: Copy incognitoACS template 
+  template:
+    src: incognitoACSSVC5.repo.j2
+    dest: /etc/yum.repos.d/incognitoACSSVC5.repo
+  when: version_dx <= '5.3'   
+
+- name: Install acssvc package
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - acssvc
+
+- name: Copy file with owner and permissions
+  copy:
+    src: acssvc.sh
+    dest: /opt/acssvc.sh
+    owner: root
+    group: root
+    mode: '0755'
+    
+- name: Register the ACS service
+  shell: bash /opt/acssvc.sh register {{ license_key_acs }}
+  #register: result
+  #changed_when: "'successfully registered' not in result.stdout"
+  ignore_errors: true
+  
+- name: Copy config-acs template 
+  template:
+    src: config-acs.txt.j2
+    dest: /usr/local/lib/acs/data/config.txt
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /usr/local/lib/acs/ext
+    state: directory
+    mode: '0755'
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src: /usr/share/java/mysql-connector-java.jar
+    dest: /usr/local/lib/acs/ext/mysql-connector-java.jar
+    owner: root
+    group: root
+    state: link
+
+- name: Create an empty file for acs
+  copy:
+    content: ""
+    dest: /etc/default/acs
+    force: no
+
+- name: Configure acs params
+  lineinfile:
+    path: /etc/default/acs
+    line: "{{ item }}"
+  with_items:
+    - 'JAVA_VM_OPT="-Xmx2048m"'
+
+- name: Make sure acssvc service is running
+  systemd:
+    name: acssvc
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- name: Install tomcat and incognito-ui-acs packages
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - tomcat
+    - incognito-ui-acs
+
+- name: Copy web-acs template 
+  template:
+    src: web-acs.xml.j2
+    dest: /opt/incognito/ui-webproxy/incognito/WEB-INF/web.xml
+
+- name: Copy web-acs-ui template 
+  template:
+    src: web-ui-acs.xml.j2
+    dest: /opt/incognito/ui-acs/acs/WEB-INF/web.xml
+
+- name: Create an empty file for setenv.sh
+  copy:
+    content: ""
+    dest: /usr/share/tomcat/bin/setenv.sh
+    force: no
+
+- name: Configure setenv params
+  lineinfile:
+    path: /usr/share/tomcat/bin/setenv.sh
+    line: "{{ item }}"
+  with_items:
+    - 'export CATALINA_OPTS="-Xms128M -Xmx256M"'
+
+- name: Make sure tomcat service is running
+  systemd:
+    name: tomcat
+    state: restarted
+    daemon_reload: yes
+    enabled: yes  

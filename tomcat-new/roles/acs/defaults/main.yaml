@@ -1,0 +1,62 @@
+## ACS
+acs: false
+license_key_acs: "05X-ACS001-5213-6301-8A15-903B"
+region_id_acs: ""
+region_id_cwmp: ""
+KAFKA_MESSAGING_ADDRESS: ""
+REDIS_CONS: ""
+REDIS_PASSWORD: ""
+database_acs: "acs"
+database_ies: "ies"
+database_ums: "ums"
+database_retina: "retina"
+username_db: "incognito"
+
+## UMS
+cwmp: false
+license_key_cwmp: "05X-CWM001-29C5-6CB3-CB22-BDFD"
+
+## UMS
+license_key_ums: "06X-RCM100-4565-C08E-CA4C-9A72"
+ums_primary: 127.0.0.1
+ums_secondary: 127.0.0.1
+
+## IES
+
+## Global
+host_db: 127.0.0.1
+port_db: 3306
+username: "user01"
+password: "yQE9ob2yqR4="
+version_dx: "5.3"
+MESSAGE_BROKER_PASSWORD: "password"
+MESSAGE_BROKER_USERNAME: admin
+MESSAGE_BROKER_ADDRESS: 127.0.0.1
+PORT_RABBIT: 5672
+rabbit_instance: false
+
+incognito_repo_yum:
+  - name: Incognito-ga-noarch
+    description: Incognito Software Systems - General packages - noarch
+    baseurl: http://repository.incognito.com/rpms/ga/incognito/$releasever/noarch
+    enabled: 1
+    gpgcheck: 0
+    state: present
+  - name: Incognito-ga
+    description: Zabbix Official Repository non-supported - $basearch
+    baseurl: http://repository.incognito.com/rpms/ga/incognito/$releasever/$basearch
+    enabled: 1
+    gpgcheck: 0
+    state: present
+  - name: Incognito-beta-noarch
+    description: Incognito Software Systems - General packages - noarch
+    baseurl: http://repository.incognito.com/rpms/beta/incognito/$releasever/noarch
+    enabled: 0
+    gpgcheck: 0
+    state: present
+  - name: Incognito-beta
+    description: Incognito Software Systems - General packages - $basearch
+    baseurl: http://repository.incognito.com/rpms/beta/incognito/$releasever/$basearch
+    enabled: 0
+    gpgcheck: 0
+    state: present

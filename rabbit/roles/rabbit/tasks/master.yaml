@@ -1,0 +1,8 @@
+- name: Generate join command
+  command: cat /var/lib/rabbitmq/.erlang.cookie
+  register: erlang_cookie_output
+
+- name: Copy erlang command to local file
+  become_user: "{{ ansible_env.USER }}"
+  become: no
+  local_action: copy content='{{ erlang_cookie_output.stdout }}' dest="./erlang.cookie"  

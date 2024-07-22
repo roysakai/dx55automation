@@ -1,0 +1,104 @@
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  ignore_errors: true
+
+- name: Install Rabbit Repo.
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ rabbitmq_repo_yum }}"
+
+- name: Install Erlang Repo.
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ erlang_repo_yum }}"
+
+- name: Install dependencies packages
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - wget
+    - vim 
+    - curl
+    - unzip
+    - epel-release
+    - openssl
+    - python3
+    - python3-pip
+    - yum-utils
+    - net-tools
+
+# - name: Configure sysctl params for Kubernetes
+#   lineinfile:
+#     path: /etc/hosts
+#     line: "{{ item }}"
+#   with_items:
+#     - '{{ node_1 }} rabbit-1'
+#     - '{{ node_2 }} rabbit-2'
+#     - '{{ node_3 }} rabbit-3'
+
+- name: Install rabbitmq packages
+  dnf:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - rabbitmq-server
+    - erlang
+
+- name: Make sure rabbitmq-server service is running
+  systemd:
+    name: rabbitmq-server
+    state: restarted
+    daemon_reload: yes
+    enabled: yes 
+
+- name: |-
+    Add user to server and assign full access control on / vhost.
+    The user might have permission rules for other vhost but you don't care.
+  community.rabbitmq.rabbitmq_user:
+    user: admin
+    password: "{{ password }}"
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present   
+
+- name: Set user tags
+  shell: rabbitmqctl set_user_tags admin administrator
+  #register: result
+  #changed_when: "'I am' not in result.stdout"
+
+- name: "Install and configuration master"
+  include_tasks: master.yaml
+  when: master == true
+
+- name: "Install and configuration nodes"
+  include_tasks: nodes.yaml
+  when: nodes == true
+
+- name: ensure the default vhost contains the HA policy via a dict
+  community.rabbitmq.rabbitmq_policy:
+    name: HA
+    pattern: .*
+  args:
+    tags:
+      ha-mode: all
+
+- name: enable rabbitmq plugins
+  rabbitmq_plugin:
+    names: rabbitmq_management
+    state: enabled
+  notify:
+    - restart rabbitmq-server

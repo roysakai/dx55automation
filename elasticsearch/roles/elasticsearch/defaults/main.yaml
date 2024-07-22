@@ -1,0 +1,23 @@
+es_cluster_name: es-cluster
+nodes_address: ''
+elastic_version: 8.9.0
+enabled_ssl: "false"
+enabled_xpack: "false"
+kibana: "false"
+
+es_config_additional: {}
+  #http.host: 0.0.0.0
+  #http.port: 9200
+  #node.data: false
+  #node.master: true
+  #transport.host: 0.0.0.0
+  #transport.port: 9300
+
+elastic_repo: elasticsearch
+elastic_repo_yum:
+  - name: elasticsearch
+    description: Elasticsearch repository - $basearch
+    enabled: 1 
+    gpgcheck: 1
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present

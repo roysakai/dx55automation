@@ -1,0 +1,86 @@
+- name: Applying installation and dependency 
+  hosts: localhost
+  connection: local 
+  become: yes 
+   
+  tasks:
+   - name: Install dependencies packages
+     dnf:
+       name: "{{ packages }}"
+     vars:
+       packages:
+       - wget
+       - vim 
+       - curl
+       - unzip
+       - java-11-openjdk
+   
+   - name: Initialize the java
+     shell: alternatives --list  | grep ^java
+     register: result
+   
+   - name: 
+     set_fact:
+       java_path: "{{ result.stdout.split('\t')[2].split('/bin/java')[0] | trim }}"
+
+   - name: Display
+     debug:
+       var: java_path
+
+   - name: Ensure group "tomcat" exists
+     ansible.builtin.group:
+       name: tomcat
+       state: present
+   
+   - name: Add the user 'tomcat'
+     ansible.builtin.user:
+       name: tomcat
+       shell: /bin/nologin
+       groups: tomcat
+       home: /opt/tomcat
+       append: yes
+
+   - name: Download tomcat package
+     get_url:
+      url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz
+      dest: /tmp/apache-tomcat-9.0.89.tar.gz
+      mode: '0640'
+   
+   - name: Create tomcat directory
+     file:
+       path: /opt/tomcat
+       state: directory
+       owner: tomcat
+       group: tomcat
+
+   - name: Extract tomcat into /opt/tomcat/
+     ansible.builtin.unarchive:
+       src: /tmp/apache-tomcat-9.0.89.tar.gz
+       dest: /opt/tomcat/
+       remote_src: yes
+       owner: tomcat
+       group: tomcat
+       mode: '0750'
+       extra_opts: ['--strip-components=1', '--show-stored-names']
+
+   - name: Copy tomcat-users template 
+     template:
+       src: tomcat-users.xml.j2
+       dest: /opt/tomcat/conf/tomcat-users.xml
+   
+   - name: Copy context template 
+     template:
+       src: context.xml.j2
+       dest: /opt/tomcat/webapps/manager/META-INF/context.xml
+   
+   - name: Copy service tomcat template 
+     template:
+       src: service.j2
+       dest: /etc/systemd/system/tomcat.service
+
+   - name: Make sure tomcat service is running
+     systemd:
+       name: tomcat
+       state: restarted
+       daemon_reload: yes
+       enabled: yes     
