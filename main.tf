@@ -8,7 +8,8 @@ locals {
   bucket_name_elastic = "ansible-elastic-"
 
   #ami                = "ami-011ef2017d41cb239" region us-east-1
-  ami = "ami-02391db2758465a87" # por account e region us-east-2
+  #ami = "ami-02391db2758465a87" # por account e region us-east-2
+  ami = "ami-039dafac71304f23a" # region Calgary
   ## SSL
   #certificate_arn = "arn:aws:iam::123456789012:server-certificate/test_cert-123456789012"
 
@@ -189,11 +190,11 @@ locals {
 
   ## VARIABLES ANSIBLE 
 
-  license_key_acs  = "05X-ACS001-5213-6301-8A15-903B"
-  license_key_ums  = "06X-RCM100-4565-C08E-CA4C-9A72"
-  license_key_cwmp = "05X-CWM001-29C5-6CB3-CB22-BDFD"
-  version_dx       = "5.2"
-  region_id_acs    = "103"
+  license_key_acs  = "05X-ACS001-34EB-3D92-1601-423B"
+  license_key_ums  = "06X-RCM100-0B9C-8E3D-BA7F-6C42"
+  license_key_cwmp = "05X-CWM001-FD9D-D507-DE65-9B95"
+  version_dx       = "5.5"
+  region_id_acs    = "104"
 
   nlb_acs4     = "acs-nlb"
   internal_acs = false
